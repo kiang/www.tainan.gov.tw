@@ -9,7 +9,7 @@ foreach($nodes AS $node) {
     }
     
     $rawFile = $rawPath . '/update.html';
-    file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=100&page=1'));
+    file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=30&page=1'));
     $rawPage = file_get_contents($rawFile);
     
     $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"');
@@ -43,11 +43,8 @@ foreach($nodes AS $node) {
             mkdir($dataPath, 0777, true);
         }
         $jsonFile = $dataPath . '/' . $json['published'] . '_' . $parts[1] . '.json';
-        
-        if(!file_exists($nodeFile)) {
-            error_log('fetching ' . $link);
-            file_put_contents($nodeFile, file_get_contents($json['url']));
-        }
+        file_put_contents($nodeFile, file_get_contents($json['url']));
+
         $node = file_get_contents($nodeFile);
         $nodePos = strpos($node, '<div class="area-essay page-caption-p"');
         $nodePosEnd = strpos($node, '<div class="area-editor system-info"', $nodePos);
