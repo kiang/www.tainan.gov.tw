@@ -8,10 +8,8 @@ foreach($nodes AS $node) {
         mkdir($rawPath, 0777, true);
     }
     
-    $rawFile = $rawPath . '/' . $i . '.html';
-    if(!file_exists($rawFile)) {
-        file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=100&page=' . $i));
-    }
+    $rawFile = $rawPath . '/update.html';
+    file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=100&page=1'));
     $rawPage = file_get_contents($rawFile);
     
     $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"');
