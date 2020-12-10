@@ -34,10 +34,15 @@ foreach($nodes AS $node) {
         $dateParts[0] += 1911;
         $json = array(
             'published' => implode('-', $dateParts),
-            'title' => $cols[1],
-            'department' => $cols[2],
             'url' => $newsContentUrl . $link,
         );
+        if(count($cols) === 4) {
+            $json['title'] = $cols[1];
+            $json['department'] = $cols[2];
+        } else {
+            $json['title'] = $cols[2];
+            $json['department'] = $cols[3];
+        }
         $dataPath = $basePath . '/data/' . $dateParts[0] . '/' . $dateParts[1];
         if(!file_exists($dataPath)) {
             mkdir($dataPath, 0777, true);
