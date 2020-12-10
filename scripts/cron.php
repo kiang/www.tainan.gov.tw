@@ -5,7 +5,7 @@ $now = date('Y-m-d H:i:s');
 
 exec("cd {$rootPath} && /usr/bin/git pull");
 
-exec("php -q {$rootPath}/scripts/02_fetch_rss.php");
+exec("php -q {$rootPath}/scripts/03_fetch_update.php");
 
 exec("cd {$rootPath} && /usr/bin/git add -A");
 
