@@ -34,6 +34,8 @@ foreach($nodes AS $node) {
         $dateParts[0] += 1911;
         $json = array(
             'published' => implode('-', $dateParts),
+            'title' => '',
+            'department' => '',
             'url' => $newsContentUrl . $link,
         );
         if(count($cols) === 4) {
