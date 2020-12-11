@@ -26,8 +26,12 @@ foreach($nodes AS $node) {
             $line = substr($rawPage, $pos, $posEnd - $pos);
             $cols = explode('</td>', $line);
             $link = '';
+            $isFour = false;
+            if(count($cols) === 4) {
+                $isFour = true;
+            }
             foreach($cols AS $k => $v) {
-                if($k === 1) {
+                if(($isFour && $k === 1) || (!$isFour && $k === 2)) {
                     $parts = explode('News_Content.aspx?', $v);
                     if(count($parts) === 2) {
                         $partPos = strpos($parts[1], '"');
@@ -37,45 +41,47 @@ foreach($nodes AS $node) {
                 $cols[$k] = trim(strip_tags($v));
             }
             $parts = explode('s=', $link);
-            $nodeFile = $rawPath . '/node_' . $parts[1] . '.html';
+            if(!empty($parts[1])) {
+                $nodeFile = $rawPath . '/node_' . $parts[1] . '.html';
 
-            $dateParts = explode('-', $cols[0]);
-            $dateParts[0] += 1911;
-            $json = array(
-                'published' => implode('-', $dateParts),
-                'title' => '',
-                'department' => '',
-                'url' => $newsContentUrl . $link,
-            );
-            if(count($cols) === 4) {
-                $json['title'] = $cols[1];
-                $json['department'] = $cols[2];
-            } else {
-                $json['title'] = $cols[2];
-                $json['department'] = $cols[3];
-            }
-            $dataPath = $basePath . '/data/' . $dateParts[0] . '/' . $dateParts[1];
-            if(!file_exists($dataPath)) {
-                mkdir($dataPath, 0777, true);
-            }
-            $jsonFile = $dataPath . '/' . $json['published'] . '_' . $parts[1] . '.json';
-            
-            if(!file_exists($nodeFile)) {
-                error_log('fetching ' . $link);
-                file_put_contents($nodeFile, file_get_contents($json['url']));
-            }
-            $node = file_get_contents($nodeFile);
-            $nodePos = strpos($node, '<div class="area-essay page-caption-p"');
-            $nodePosEnd = strpos($node, '<div class="area-editor system-info"', $nodePos);
-            $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
-            $body = str_replace(array('</p>', '&nbsp;'), array("\n", ''), $body);
-            $json['content'] = trim(strip_tags($body));
+                $dateParts = explode('-', $cols[0]);
+                $dateParts[0] += 1911;
+                $json = array(
+                    'published' => implode('-', $dateParts),
+                    'title' => '',
+                    'department' => '',
+                    'url' => $newsContentUrl . $link,
+                );
+                if(count($cols) === 4) {
+                    $json['title'] = $cols[1];
+                    $json['department'] = $cols[2];
+                } else {
+                    $json['title'] = $cols[2];
+                    $json['department'] = $cols[3];
+                }
+                $dataPath = $basePath . '/data/' . $dateParts[0] . '/' . $dateParts[1];
+                if(!file_exists($dataPath)) {
+                    mkdir($dataPath, 0777, true);
+                }
+                $jsonFile = $dataPath . '/' . $json['published'] . '_' . $parts[1] . '.json';
+                
+                if(!file_exists($nodeFile)) {
+                    error_log('fetching ' . $link);
+                    file_put_contents($nodeFile, file_get_contents($json['url']));
+                }
+                $node = file_get_contents($nodeFile);
+                $nodePos = strpos($node, '<div class="area-essay page-caption-p"');
+                $nodePosEnd = strpos($node, '<div class="area-editor system-info"', $nodePos);
+                $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
+                $body = str_replace(array('</p>', '&nbsp;'), array("\n", ''), $body);
+                $json['content'] = trim(strip_tags($body));
 
-            $nodePos = $nodePosEnd;
-            $nodePosEnd = strpos($node, '<div class="group page-footer"', $nodePos);
-            $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
-            $json['tags'] = mb_substr(trim(strip_tags($body)), 3, null, 'utf-8');
-            file_put_contents($jsonFile, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                $nodePos = $nodePosEnd;
+                $nodePosEnd = strpos($node, '<div class="group page-footer"', $nodePos);
+                $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
+                $json['tags'] = mb_substr(trim(strip_tags($body)), 3, null, 'utf-8');
+                file_put_contents($jsonFile, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
     
             $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"', $posEnd);
         }
