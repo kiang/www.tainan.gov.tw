@@ -17,6 +17,7 @@ foreach($nodes AS $node) {
         $posEnd = strpos($rawPage, '</tr>', $pos);
         $line = substr($rawPage, $pos, $posEnd - $pos);
         $cols = explode('</td>', $line);
+        $link = '';
         foreach($cols AS $k => $v) {
             if($k === 1) {
                 $parts = explode('News_Content.aspx?', $v);
