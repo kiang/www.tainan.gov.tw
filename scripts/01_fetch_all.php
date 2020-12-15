@@ -71,15 +71,23 @@ foreach($nodes AS $node) {
                 }
                 $node = file_get_contents($nodeFile);
                 $nodePos = strpos($node, '<div class="area-essay page-caption-p"');
-                $nodePosEnd = strpos($node, '<div class="area-editor system-info"', $nodePos);
-                $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
-                $body = str_replace(array('</p>', '&nbsp;'), array("\n", ''), $body);
-                $json['content'] = trim(strip_tags($body));
-
-                $nodePos = $nodePosEnd;
-                $nodePosEnd = strpos($node, '<div class="group page-footer"', $nodePos);
-                $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
-                $json['tags'] = mb_substr(trim(strip_tags($body)), 3, null, 'utf-8');
+                if(false !== $nodePos) {
+                    $nodePosEnd = strpos($node, '<div class="area-editor system-info"', $nodePos);
+                    $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
+                    $body = str_replace(array('</p>', '&nbsp;'), array("\n", ''), $body);
+                    $json['content'] = trim(strip_tags($body));
+                    $nodePos = $nodePosEnd;
+                } else {
+                    $json['content'] = '';
+                    $nodePos = strpos($node, '<div class="area-editor system-info"');
+                }
+                if(false !== $nodePos) {
+                    $nodePosEnd = strpos($node, '<div class="group page-footer"', $nodePos);
+                    $body = substr($node, $nodePos, $nodePosEnd - $nodePos);
+                    $json['tags'] = mb_substr(trim(strip_tags($body)), 3, null, 'utf-8');    
+                } else {
+                    $json['tags'] = '';
+                }
                 file_put_contents($jsonFile, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
             }
     
