@@ -89,6 +89,25 @@ foreach($nodes AS $node) {
                     $json['tags'] = '';
                 }
                 file_put_contents($jsonFile, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+                $p = pathinfo($jsonFile);
+                $jParts = explode('_', $p['filename']);
+                if(empty($jParts[1])) {
+                    unlink($jsonFile);
+                } else {
+                    $metaFile = dirname($p['dirname']) . '/' . $jParts[0] . '.json';
+                    if(file_exists($metaFile)) {
+                        $meta = json_decode(file_get_contents($metaFile), true);
+                    } else {
+                        $meta = [];
+                    }
+                    if(!isset($meta[$jParts[1]])) {
+                        $json = json_decode(file_get_contents($jsonFile), true);
+                        $meta[$jParts[1]] = $json['url'];
+                        ksort($meta);
+                        file_put_contents($metaFile, json_encode($meta));
+                    }
+                }
             }
     
             $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"', $posEnd);
