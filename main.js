@@ -8,7 +8,8 @@ $(function() {
     .change(function() {
         theDate = $(this).val();
         getNews(theDate);
-    });
+    })
+    .trigger('change');
 })
 
 function getNews(theDate) {
