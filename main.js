@@ -1,8 +1,20 @@
 let rightNow = new Date();
 let theDate = rightNow.toISOString().slice(0,10);
-let theYear = theDate.slice(0,4);
-let theMonth = theDate.slice(5,7);
 $(function() {
+    $('#theDate').datepicker({
+        dateFormat: 'yy-mm-dd'
+    })
+    .val(theDate)
+    .change(function() {
+        theDate = $(this).val();
+        getNews(theDate);
+    });
+})
+
+function getNews(theDate) {
+    $('div.row').html('');
+    let theYear = theDate.slice(0,4);
+    let theMonth = theDate.slice(5,7);
     let metaFile = 'data/' + theYear + '/' + theDate + '.json';
     $.getJSON(metaFile, {}, function(c) {
         for(k in c) {
@@ -18,4 +30,4 @@ $(function() {
             })
         }
     })
-})
+}
