@@ -117,7 +117,7 @@ foreach ($nodes as $node) {
                     }
                     if (!empty($media)) {
                         $linkData = [
-                            'message' => $json['title'] . "\n\n" . $json['content'],
+                            'message' => $json['title'] . "\n\n" . $json['content'] . "\n\n" . $json['url'],
                             'attached_media' => $media,
                         ];
 
