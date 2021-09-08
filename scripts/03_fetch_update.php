@@ -95,9 +95,19 @@ foreach ($nodes as $node) {
                     $imgPool[] = $imgParts2[0] . $imgParts2Ext;
                     $imgPos = strpos($node, '<li data-src=', $imgPosEnd);
                 }
+                $imgPos = strpos($node, 'class="jpg"');
+                while (false !== $imgPos) {
+                    $imgPos = strpos($node, 'https://w3fs.tainan.gov.tw/', $imgPos);
+                    $imgPosEnd = strpos($node, '"   data-ccms_hitcount_relfile', $imgPos);
+                    $imgPool[] = substr($node, $imgPos, $imgPosEnd - $imgPos);
+                    $imgPos = strpos($node, 'class="jpg"', $imgPosEnd);
+                }
                 if (!empty($imgPool)) {
                     foreach ($imgPool as $imgUrl) {
                         $p = pathinfo($imgUrl);
+                        if($p['dirname'] === 'https://w3fs.tainan.gov.tw' && $p['filename'] === 'Download') {
+                            $p['extension'] = 'jpg';
+                        }
                         $imgFile = $rawPath . '/img.' . $p['extension'];
                         file_put_contents($imgFile, file_get_contents($imgUrl));
                         try {
