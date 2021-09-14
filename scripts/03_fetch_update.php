@@ -112,7 +112,7 @@ foreach ($nodes as $node) {
                         file_put_contents($imgFile, file_get_contents($imgUrl));
                         try {
                             $response = $fb->post('/' . $config['page_id'] . '/photos', [
-                                'message' => $json['title'],
+                                'message' => $json['title'] . "\n\n" . $json['content'],
                                 'source' => $fb->fileToUpload($imgFile),
                                 'published' => false,
                             ], $config['token']);
