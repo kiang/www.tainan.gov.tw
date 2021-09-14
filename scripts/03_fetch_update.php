@@ -84,6 +84,7 @@ foreach ($nodes as $node) {
                 $nodePos = strpos($node, '<div class="area-editor system-info"');
             }
             if ($isNew && !empty($json['content'])) {
+                $message = $json['title'] . "\n\n" . $json['content'] . "\n\n" . $json['url'];
                 $imgPool = [];
                 $media = [];
                 $imgPos = strpos($node, '<li data-src=');
@@ -112,7 +113,7 @@ foreach ($nodes as $node) {
                         file_put_contents($imgFile, file_get_contents($imgUrl));
                         try {
                             $response = $fb->post('/' . $config['page_id'] . '/photos', [
-                                'message' => $json['title'] . "\n\n" . $json['content'],
+                                'message' => $message,
                                 'source' => $fb->fileToUpload($imgFile),
                                 'published' => false,
                             ], $config['token']);
@@ -127,7 +128,7 @@ foreach ($nodes as $node) {
                     }
                     if (!empty($media)) {
                         $linkData = [
-                            'message' => $json['title'] . "\n\n" . $json['content'] . "\n\n" . $json['url'],
+                            'message' => $message,
                             'attached_media' => $media,
                         ];
 
