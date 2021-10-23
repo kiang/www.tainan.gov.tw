@@ -1,6 +1,6 @@
 <?php
 /*
-grep 'title": "臺南市寺廟廟會活動明細' -r . > list.txt
+cd data && grep 'title": "臺南市寺廟廟會活 動明細' -r . > ../topics/臺南市寺廟廟會活動明細/list.txt
 */
 $basePath = dirname(__DIR__);
 $rawPath = $basePath . '/raw/topic1';
@@ -82,15 +82,47 @@ foreach ($lines as $line) {
     }
 }
 $oFh = [];
+$poi = json_decode(file_get_contents('/home/kiang/public_html/religion/data/poi/臺南市.json'), true);
+$ref = [];
+foreach($poi['features'] AS $f) {
+    if($f['properties']['類型'] !== '寺廟') {
+        continue;
+    }
+    $pos = strpos($f['properties']['地址'], '區');
+    if(false !== $pos) {
+        $area = str_replace($f['properties']['行政區'], '', substr($f['properties']['地址'], 0, $pos) . '區');
+        $ref[$area][$f['properties']['名稱']] = $f['properties'];
+    }
+}
+$count = [
+    'found' => 0,
+    'miss' => [],
+];
 foreach($pool AS $k1 => $v1) {
     if(!isset($oFh[$k1])) {
         $oFh[$k1] = fopen($basePath . '/topics/臺南市寺廟廟會活動明細/' . $k1 . '.csv', 'w');
         fputcsv($oFh[$k1], ['point', 'dateBegin', 'dateEnd', 'time', 'contact', 'phone', 'event', 'url']);
     }
     foreach($v1 AS $k2 => $v2) {
+        if(isset($ref[$k1][$k2])) {
+            ++$count['found'];
+        } else {
+            $pointFound = false;
+            if(isset($ref[$k1])) {
+                foreach($ref[$k1] AS $k => $v) {
+                    if(false === $pointFound && false !== strpos($k, $k2)) {
+                        $pointFound = true;
+                        print_r($k2);
+                        print_r($v);
+                    }
+                }
+            }
+            $count['miss'][] = $k1 . $k2;
+        }
         ksort($v2);
         foreach($v2 AS $line) {
             fputcsv($oFh[$k1], array_merge([$k2], $line));
         }
     }
 }
+print_r($count);
