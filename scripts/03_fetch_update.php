@@ -3,6 +3,13 @@ $basePath = dirname(__DIR__);
 require_once $basePath . '/vendor/autoload.php';
 $config = require $basePath . '/scripts/config.php';
 
+$context = stream_context_create(array(
+    "ssl" => array(
+        "verify_peer" => false,
+        "verify_peer_name" => false,
+    ),
+));
+
 $nodes = array('13370', '13371', '13303', '13372', '1962', '1963', '13373', '4960', '4961', '4962', '4963', '4964', '4965', '4966', '4967');
 $newsContentUrl = 'https://www.tainan.gov.tw/News_Content.aspx?';
 $fb = new Facebook\Facebook([
@@ -17,7 +24,7 @@ foreach ($nodes as $node) {
     }
 
     $rawFile = $rawPath . '/update.html';
-    file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=30&page=1'));
+    file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=30&page=1', false, $context));
     $rawPage = file_get_contents($rawFile);
 
     $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"');
@@ -68,7 +75,7 @@ foreach ($nodes as $node) {
                 mkdir($dataPath, 0777, true);
             }
             $jsonFile = $dataPath . '/' . $json['published'] . '_' . $parts[1] . '.json';
-            file_put_contents($nodeFile, file_get_contents($json['url']));
+            file_put_contents($nodeFile, file_get_contents($json['url'], false, $context));
 
             $node = file_get_contents($nodeFile);
             $nodePos = strpos($node, '<div class="area-essay page-caption-p"');
@@ -106,11 +113,11 @@ foreach ($nodes as $node) {
                 if (!empty($imgPool)) {
                     foreach ($imgPool as $imgUrl) {
                         $p = pathinfo($imgUrl);
-                        if($p['dirname'] === 'https://w3fs.tainan.gov.tw' && $p['filename'] === 'Download') {
+                        if ($p['dirname'] === 'https://w3fs.tainan.gov.tw' && $p['filename'] === 'Download') {
                             $p['extension'] = 'jpg';
                         }
                         $imgFile = $rawPath . '/img.' . $p['extension'];
-                        file_put_contents($imgFile, file_get_contents($imgUrl));
+                        file_put_contents($imgFile, file_get_contents($imgUrl, false, $context));
                         try {
                             $response = $fb->post('/' . $config['page_id'] . '/photos', [
                                 'message' => $message,
