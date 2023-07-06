@@ -1,6 +1,6 @@
 <?php
 $basePath = dirname(__DIR__);
-$json = json_decode(file_get_contents($basePath . '/data/2023/2023-05-03.json'), true);
+$json = json_decode(file_get_contents($basePath . '/data/2023/2023-07-06.json'), true);
 foreach($json AS $k => $v) {
 	$parts = parse_url($v);
 	parse_str($parts['query'], $q);
