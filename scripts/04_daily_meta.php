@@ -1,6 +1,6 @@
 <?php
 $basePath = dirname(__DIR__);
-foreach(glob($basePath . '/data/*/*/*.json') AS $jsonFile) {
+foreach(glob($basePath . '/docs/data/*/*/*.json') AS $jsonFile) {
     $p = pathinfo($jsonFile);
     $parts = explode('_', $p['filename']);
     if(empty($parts[1])) {

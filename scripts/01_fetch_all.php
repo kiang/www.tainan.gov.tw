@@ -59,7 +59,7 @@ foreach($nodes AS $node) {
                     $json['title'] = $cols[2];
                     $json['department'] = $cols[3];
                 }
-                $dataPath = $basePath . '/data/' . $dateParts[0] . '/' . $dateParts[1];
+                $dataPath = $basePath . '/docs/data/' . $dateParts[0] . '/' . $dateParts[1];
                 if(!file_exists($dataPath)) {
                     mkdir($dataPath, 0777, true);
                 }

@@ -46,7 +46,7 @@ foreach($nodes AS $node) {
         }
         $nodeFile = $rawPath . '/node_' . $parts[1] . '.html';
 
-        $dataPath = $basePath . '/data/' . $dateParts[0] . '/' . $dateParts[1];
+        $dataPath = $basePath . '/docs/data/' . $dateParts[0] . '/' . $dateParts[1];
         if(!file_exists($dataPath)) {
             mkdir($dataPath, 0777, true);
         }

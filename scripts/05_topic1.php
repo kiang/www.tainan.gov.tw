@@ -15,7 +15,7 @@ foreach ($lines as $line) {
     $parts = explode(':    "title": "', $line);
     if (count($parts) === 2) {
         $parts[0] = substr($parts[0], 2);
-        $data = json_decode(file_get_contents($basePath . '/data/' . $parts[0]), true);
+        $data = json_decode(file_get_contents($basePath . '/docs/data/' . $parts[0]), true);
         $parts = preg_split('/[^0-9]+/', $data['url']);
         $rawFile = $rawPath . '/' . $parts[1] . '_' . $parts[2] . '.html';
         if (!file_exists($rawFile)) {
