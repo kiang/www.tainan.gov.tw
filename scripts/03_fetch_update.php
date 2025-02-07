@@ -1,8 +1,11 @@
 <?php
 $basePath = dirname(__DIR__);
+
+// Load required Facebook SDK and configuration
 require_once $basePath . '/vendor/autoload.php';
 $config = require $basePath . '/scripts/config.php';
 
+// SSL context to handle HTTPS connections
 $context = stream_context_create(array(
     "ssl" => array(
         "verify_peer" => false,
@@ -10,14 +13,20 @@ $context = stream_context_create(array(
     ),
 ));
 
+// Department node IDs for checking updates
 $nodes = array('13370', '13371', '13303', '13372', '1962', '1963', '13373', '4960', '4961', '4962', '4963', '4964', '4965', '4966', '4967');
 $newsContentUrl = 'https://www.tainan.gov.tw/News_Content.aspx?';
+
+// Initialize Facebook SDK
 $fb = new Facebook\Facebook([
     'app_id' => $config['app_id'],
     'app_secret' => $config['app_secret'],
     'default_graph_version' => 'v2.2',
 ]);
+
+// Process each department node
 foreach ($nodes as $node) {
+    // Create directories and fetch updates
     $rawPath = $basePath . '/raw/' . $node;
     if (!file_exists($rawPath)) {
         mkdir($rawPath, 0777, true);
@@ -90,7 +99,10 @@ foreach ($nodes as $node) {
                 $json['content'] = '';
                 $nodePos = strpos($node, '<div class="area-editor system-info"');
             }
+
+            // If new content with images found, post to Facebook
             if ($isNew && !empty($json['content'])) {
+                // Prepare Facebook post content
                 $message = $json['title'] . "\n\n" . $json['content'] . "\n\n" . $json['url'];
                 $imgPool = [];
                 $media = [];

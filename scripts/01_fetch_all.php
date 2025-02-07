@@ -1,25 +1,40 @@
 <?php
+// Base directory path
 $basePath = dirname(__DIR__);
+
+// Department node IDs for crawling
 $nodes = array('13370', '13371', '13303', '13372', '1962', '1963', '13373', '4960', '4961', '4962', '4963', '4964', '4965', '4966', '4967');
+
+// Base URL for news content
 $newsContentUrl = 'https://www.tainan.gov.tw/News_Content.aspx?';
+
+// Loop through each department node
 foreach($nodes AS $node) {
+    // Create directory for raw HTML files if not exists
     $rawPath = $basePath . '/raw/' . $node;
     if(!file_exists($rawPath)) {
         mkdir($rawPath, 0777, true);
     }
+
+    // Handle pagination
     $totalPages = 1;
     for($i = 1; $i <= $totalPages; $i++) {
+        // Download or load page HTML
         $rawFile = $rawPath . '/' . $i . '.html';
         if(!file_exists($rawFile)) {
             file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=500&page=' . $i));
         }
         $rawPage = file_get_contents($rawFile);
+
+        // Calculate total pages on first run
         if($totalPages === 1) {
             $pos = strpos($rawPage, '<span class="count">');
             $posEnd = strpos($rawPage, '</span>', $pos);
             $recordCount = intval(substr(strip_tags(substr($rawPage, $pos, $posEnd - $pos)), 1));
             $totalPages = ceil($recordCount / 500);
         }
+
+        // Parse news entries from the page
         $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"');
         while(false !== $pos) {
             $posEnd = strpos($rawPage, '</tr>', $pos);

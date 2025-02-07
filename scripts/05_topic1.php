@@ -1,17 +1,26 @@
 <?php
 /*
-cd data && grep 'title": "臺南市寺廟廟會活 動明細' -r . > ../topics/臺南市寺廟廟會活動明細/list.txt
-*/
+ * Script to process temple event listings
+ * Requires raw data with grep command:
+ * cd data && grep 'title": "臺南市寺廟廟會活 動明細' -r . > ../topics/臺南市寺廟廟會活動明細/list.txt
+ */
+
 $basePath = dirname(__DIR__);
+
+// Create directory for raw temple data
 $rawPath = $basePath . '/raw/topic1';
 if (!file_exists($rawPath)) {
     mkdir($rawPath, 0777, true);
 }
 
+// Process temple events list
 $lines = explode("\n", file_get_contents($basePath . '/topics/臺南市寺廟廟會活動明細/list.txt'));
 $pool = [];
 $count = [];
+
+// Extract and process each temple event
 foreach ($lines as $line) {
+    // Parse event data
     $parts = explode(':    "title": "', $line);
     if (count($parts) === 2) {
         $parts[0] = substr($parts[0], 2);
@@ -36,6 +45,7 @@ foreach ($lines as $line) {
                     }
                     $tds[4] = preg_split('/[^0-9]+/', $tds[4]);
                     $countDates = count($tds[4]);
+                    // Convert dates from Taiwanese calendar to Western calendar
                     switch ($countDates) {
                         case 3:
                             $tds[4][0] += 1911;
@@ -58,6 +68,7 @@ foreach ($lines as $line) {
                             $dateEnd = mktime(null, null, null, $tds[4][4], $tds[4][5], $tds[4][3]);
                             break;
                     }
+                    // Organize data by location and temple
                     if(!isset($pool[$tds[0]])) {
                         $pool[$tds[0]] = [];
                     }
@@ -81,9 +92,13 @@ foreach ($lines as $line) {
         }
     }
 }
+
+// Process temple reference data
 $oFh = [];
 $poi = json_decode(file_get_contents('/home/kiang/public_html/religion/data/poi/臺南市.json'), true);
 $ref = [];
+
+// Match temple events with reference data
 foreach($poi['features'] AS $f) {
     if($f['properties']['類型'] !== '寺廟') {
         continue;
@@ -120,6 +135,7 @@ foreach($pool AS $k1 => $v1) {
             $count['miss'][] = $k1 . $k2;
         }
         ksort($v2);
+        // Write organized data to CSV files
         foreach($v2 AS $line) {
             fputcsv($oFh[$k1], array_merge([$k2], $line));
         }

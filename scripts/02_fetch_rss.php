@@ -1,7 +1,9 @@
 <?php
 $basePath = dirname(__DIR__);
 
+// Define RSS feed URLs for different content types
 $nodes = array(
+    // Key is content type, value is RSS feed URL
     '市府新聞' => 'https://www.tainan.gov.tw/OpenData.aspx?SN=24474215983F6554',
     '機關新聞' => 'https://www.tainan.gov.tw/OpenData.aspx?SN=9B973A5871579AC7',
     '勞工RSS' => 'https://www.tainan.gov.tw/OpenData.aspx?SN=4933DB35000610C4',
@@ -21,13 +23,22 @@ $nodes = array(
     '市政會議' => 'https://www.tainan.gov.tw/OpenData.aspx?SN=455B2352278A7C8D',
 );
 
+// Base URL for detailed news content
 $newsContentUrl = 'https://www.tainan.gov.tw/News_Content.aspx?';
+
+// Process each RSS feed
 foreach($nodes AS $node) {
+    // Load and parse XML feed
     $xml = simplexml_load_file($node);
     $entries = $xml->xpath("//item");
+
+    // Process each news item
     foreach($entries AS $entry) {
+        // Convert publication date
         $pubDate = date('Y-m-d', strtotime($entry->pubDate));
         $dateParts = explode('-', $pubDate);
+
+        // Create JSON structure for news item
         $json = array(
             'published' => $pubDate,
             'title' => (string)$entry->title,
@@ -35,6 +46,7 @@ foreach($nodes AS $node) {
             'url' => (string)$entry->link,
         );
 
+        // Extract article content and save
         $parts = explode('&s=', $json['url']);
         $nParts = explode('n=', $parts[0]);
         if(empty($nParts[1])) {
