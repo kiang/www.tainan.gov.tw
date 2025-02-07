@@ -86,13 +86,39 @@ docs/
 
 ### Running Scripts
 
-The project contains various PHP scripts in the `scripts/` directory:
+The project contains the following PHP scripts in the `scripts/` directory:
 
-1. `crawler.php` - Main crawler script for news extraction
-2. `parser.php` - Processes and structures the crawled data
-3. `facebook.php` - Collects related data from Facebook using Graph API
+1. `01_fetch_all.php`
+   - Main crawler script that fetches all historical news
+   - Downloads news articles from multiple department nodes
+   - Processes and stores articles in JSON format
 
-To run a script:
+2. `02_fetch_rss.php`
+   - Fetches news from various RSS feeds
+   - Includes feeds for city news, department news, labor news, education news
+   - Also fetches procurement announcements and city council meetings
+
+3. `03_fetch_update.php`
+   - Incremental update script for new content
+   - Posts news with images to Facebook page
+   - Uses Facebook Graph API for auto-posting
+
+4. `04_daily_meta.php`
+   - Generates and updates metadata files
+   - Creates daily index files for better organization
+   - Manages file relationships and references
+
+5. `05_topic1.php`
+   - Specialized script for temple events and activities
+   - Extracts and processes temple-related announcements
+   - Organizes data by location and date
+
+6. `06_remove_raw.php`
+   - Cleanup script to remove raw HTML files
+   - Helps maintain disk space
+   - Removes processed temporary files
+
+To run any script:
 ```bash
 php scripts/script-name.php
 ```
