@@ -1,6 +1,33 @@
 <?php
 $basePath = dirname(__DIR__);
 
+// Add new curl function at the top
+function curlGet($url, $context = null) {
+    $ch = curl_init();
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        CURLOPT_ENCODING => '',
+        CURLOPT_HTTPHEADER => [
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language: zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Connection: keep-alive'
+        ]
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return ($httpCode == 200 && $response !== false) ? $response : false;
+}
+
 // Load required Facebook SDK and configuration
 require_once $basePath . '/vendor/autoload.php';
 $config = require $basePath . '/scripts/config.php';
@@ -33,7 +60,11 @@ foreach ($nodes as $node) {
     }
 
     $rawFile = $rawPath . '/update.html';
-    file_put_contents($rawFile, file_get_contents('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=30&page=1', false, $context));
+    // Replace first file_get_contents with curl
+    $content = curlGet('https://www.tainan.gov.tw/News.aspx?n=' . $node . '&PageSize=30&page=1');
+    if ($content !== false) {
+        file_put_contents($rawFile, $content);
+    }
     $rawPage = file_get_contents($rawFile);
 
     $pos = strpos($rawPage, '<td class="CCMS_jGridView_td_Class_0"');
@@ -84,7 +115,11 @@ foreach ($nodes as $node) {
                 mkdir($dataPath, 0777, true);
             }
             $jsonFile = $dataPath . '/' . $json['published'] . '_' . $parts[1] . '.json';
-            file_put_contents($nodeFile, file_get_contents($json['url'], false, $context));
+            // Replace file_get_contents with curlGet
+            $content = curlGet($json['url']);
+            if ($content !== false) {
+                file_put_contents($nodeFile, $content);
+            }
 
             $node = file_get_contents($nodeFile);
             $nodePos = strpos($node, '<div class="area-essay page-caption-p"');
