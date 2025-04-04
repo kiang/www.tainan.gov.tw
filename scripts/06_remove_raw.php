@@ -3,7 +3,7 @@
 $basePath = dirname(__DIR__);
 
 // Load the JSON data file
-$json = json_decode(file_get_contents($basePath . '/docs/data/2024/2024-12-20.json'), true);
+$json = json_decode(file_get_contents($basePath . '/docs/data/2025/2025-04-04.json'), true);
 
 // Process each entry and remove its raw HTML file
 foreach($json AS $k => $v) {
